@@ -1,0 +1,24 @@
+{
+  "name": "zn-filter-matcher",
+  "version": "1.0.0",
+  "description": "Zengine Filter Matcher",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZengineHQ/zn-filter-matcher.git"
+  },
+  "keywords": [
+    "zengine",
+    "filter",
+    "matcher"
+  ],
+  "author": "ZengineHQ",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ZengineHQ/zn-filter-matcher/issues"
+  },
+  "homepage": "https://github.com/ZengineHQ/zn-filter-matcher#readme"
+}
