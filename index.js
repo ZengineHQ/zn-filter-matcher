@@ -188,10 +188,10 @@ var znFilterMatcher = (function() {
 	 * @author	David McNelis <david.mcnelis@wizehive.com>
 	 * @since	1.1.0
 	 */
-	 function anyKeysLike(x, pattern) {
-	 	if (x.constructor !== Object) {
-	 		return false;
-	 	}
+	function anyKeysLike(x, pattern) {
+		if (x.constructor !== Object) {
+			return false;
+		}
 		var keys = Object.keys(x);
 		for (var i = 0; i < keys.length; i++) {
 			if (pattern.test(keys[i])) {
@@ -247,12 +247,11 @@ var znFilterMatcher = (function() {
 			// Rule contains "and"/"or" key - nested filter
 			return recordMatchesFilter(record, rule);
 		}
-
 		if (rule.filter !== undefined) {
 			var subRecord = record[rule.attribute];
 			if (subRecord &&
-				  isObject(subRecord) &&
-				  (noKeys(subRecord) || anyKeysLike(subRecord, /^field/))) {
+				isObject(subRecord) &&
+				(noKeys(subRecord) || anyKeysLike(subRecord, /^field/))) {
 				if (!recordMatchesFilter(subRecord, rule.filter)) {
 					return false;
 				}
@@ -260,6 +259,7 @@ var znFilterMatcher = (function() {
 			} else {
 				throw new Error("Subfilter matching is not supported");
 			}
+
 		}
 
 		if (typeof rule.value === 'string' && rule.value.split('|').indexOf('logged-in-user') !== -1) {
