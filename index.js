@@ -176,7 +176,7 @@ var znFilterMatcher = (function() {
 	 * @since	1.1.0
 	 */
 	function noKeys(x) {
-		return (x.constructor === Object) && (Object.keys(x).length === 0);
+		return isObject(x) && (Object.keys(x).length === 0);
 	};
 
 	/**
@@ -189,7 +189,7 @@ var znFilterMatcher = (function() {
 	 * @since	1.1.0
 	 */
 	function anyKeysLike(x, pattern) {
-		if (x.constructor !== Object) {
+		if (!isObject(x)) {
 			return false;
 		}
 		var keys = Object.keys(x);
@@ -249,9 +249,7 @@ var znFilterMatcher = (function() {
 		}
 		if (rule.filter !== undefined) {
 			var subRecord = record[rule.attribute];
-			if (subRecord &&
-				isObject(subRecord) &&
-				(noKeys(subRecord) || anyKeysLike(subRecord, /^field/))) {
+			if (subRecord && (noKeys(subRecord) || anyKeysLike(subRecord, /^field/))) {
 				if (!recordMatchesFilter(subRecord, rule.filter)) {
 					return false;
 				}
