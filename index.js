@@ -168,16 +168,31 @@ var znFilterMatcher = (function() {
 	};
 
 	/**
+	 * Is var an empty object?
+	 *
+	 * @param	x
+	 * @returns	{Boolean}
+	 * @author	David McNelis <david.mcnelis@wizehive.com>
+	 * @since	1.1.0
+	 */
+	function noKeys(x) {
+		return (x.constructor === Object) && (Object.keys(x).length === 0);
+	};
+
+	/**
 	 * Do any object keys match a pattern
 	 *
-	 * @param	arr
+	 * @param	x
 	 * @param	pattern
 	 * @returns	{Boolean}
 	 * @author	David McNelis <david.mcnelis@wizehive.com>
 	 * @since	1.1.0
 	 */
-	 function anyMatchingKeys(arr, pattern) {
-		var keys = Object.keys(arr);
+	 function anyKeysLike(x, pattern) {
+	 	if (x.constructor !== Object) {
+	 		return false;
+	 	}
+		var keys = Object.keys(x);
 		for (var i = 0; i < keys.length; i++) {
 			if (pattern.test(keys[i])) {
 				return true;
@@ -235,7 +250,9 @@ var znFilterMatcher = (function() {
 
 		if (rule.filter !== undefined) {
 			var subRecord = record[rule.attribute];
-			if (subRecord && isObject(subRecord) && anyMatchingKeys(subRecord, /^field/)) {
+			if (subRecord &&
+				  isObject(subRecord) &&
+				  (noKeys(subRecord) || anyKeysLike(subRecord, /^field/))) {
 				if (!recordMatchesFilter(subRecord, rule.filter)) {
 					return false;
 				}
