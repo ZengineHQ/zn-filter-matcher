@@ -15,6 +15,7 @@
  */
 var znFilterMatcher = (function() {
 
+	var BigNumber = require('bignumber.js');
 	var ruleFunctionMap = {
 		'': 'ruleEquals',
 		'not': 'ruleDoesNotEqual',
@@ -156,52 +157,6 @@ var znFilterMatcher = (function() {
 	};
 
 	/**
-	 * Is var an object?
-	 *
-	 * @param	x
-	 * @returns	{Boolean}
-	 * @author	David McNelis <david.mcnelis@wizehive.com>
-	 * @since	1.1.0
-	 */
-	function isObject(x) {
-		return (!!x) && (x.constructor === Object);
-	};
-
-	/**
-	 * Is var an empty object?
-	 *
-	 * @param	x
-	 * @returns	{Boolean}
-	 * @author	David McNelis <david.mcnelis@wizehive.com>
-	 * @since	1.1.0
-	 */
-	function noKeys(x) {
-		return isObject(x) && (Object.keys(x).length === 0);
-	};
-
-	/**
-	 * Do any object keys match a pattern
-	 *
-	 * @param	x
-	 * @param	pattern
-	 * @returns	{Boolean}
-	 * @author	David McNelis <david.mcnelis@wizehive.com>
-	 * @since	1.1.0
-	 */
-	function anyKeysLike(x, pattern) {
-		if (!isObject(x)) {
-			return false;
-		}
-		var keys = Object.keys(x);
-		for (var i = 0; i < keys.length; i++) {
-			if (pattern.test(keys[i])) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
 	 * Determine whether the given record matches the given filter
 	 *
 	 * @param	{Object}	filter
@@ -210,7 +165,8 @@ var znFilterMatcher = (function() {
 	 * @author	Paul W. Smith <paul@wizehive.com>
 	 * @since	0.5.75
 	 */
-	function recordMatchesFilter(record, filter) {
+	function recordMatchesFilter(record, filter, options) {
+		options = typeof options !== 'undefined' ? options : {};
 		var currentOperator = Object.keys(filter)[0];
 		if (filter[currentOperator].length === 0) {
 			// Empty filter / no rules - considered a "match all"
@@ -218,7 +174,7 @@ var znFilterMatcher = (function() {
 		}
 
 		for (var i in filter[currentOperator]) {
-			var match = recordMatchesRule(record, filter[currentOperator][i]);
+			var match = recordMatchesRule(record, filter[currentOperator][i], options);
 			if (currentOperator == 'or' && match) {
 				return true;
 			}
@@ -240,7 +196,8 @@ var znFilterMatcher = (function() {
 	 * @author	Paul W. Smith <paul@wizehive.com>
 	 * @since	0.5.75
 	 */
-	function recordMatchesRule(record, rule) {
+	function recordMatchesRule(record, rule, options) {
+		options = typeof options !== 'undefined' ? options : {};
 		var operators = ["and", "or"];
 
 		if (operators.indexOf(Object.keys(rule)[0]) !== -1) {
@@ -248,16 +205,15 @@ var znFilterMatcher = (function() {
 			return recordMatchesFilter(record, rule);
 		}
 		if (rule.filter !== undefined) {
-			var subRecord = record[rule.attribute];
-			if (subRecord && (noKeys(subRecord) || anyKeysLike(subRecord, /^field/))) {
-				if (!recordMatchesFilter(subRecord, rule.filter)) {
+			if (options.subfiltering) {
+				var subRecord = record[rule.attribute];
+				if (!recordMatchesFilter(subRecord, rule.filter, options)) {
 					return false;
 				}
 				return true;
 			} else {
 				throw new Error("Subfilter matching is not supported");
 			}
-
 		}
 
 		if (typeof rule.value === 'string' && rule.value.split('|').indexOf('logged-in-user') !== -1) {

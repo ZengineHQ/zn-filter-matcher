@@ -20,5 +20,10 @@
   "bugs": {
     "url": "https://github.com/ZengineHQ/zn-filter-matcher/issues"
   },
-  "homepage": "https://github.com/ZengineHQ/zn-filter-matcher#readme"
+  "homepage": "https://github.com/ZengineHQ/zn-filter-matcher#readme",
+  "dependencies": {
+    "bignumber.js": "2.4.0"
+  },
+  "devDependencies": {}
+
 }
