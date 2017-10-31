@@ -161,14 +161,23 @@ var znFilterMatcher = (function() {
 				  !Array.isArray(ruleValue)) {
 				return false;
 			}
-			return (ruleValue.indexOf(recordValue) !== -1);
+			var value = String(recordValue).toLowerCase();
+			var list = ruleValue.map(function (e) {
+				return String(e).toLowerCase();
+			});
+			console.log('list', list);
+			return (list.indexOf(value) !== -1);
 		},
 		ruleNotIn: function(recordValue, ruleValue) {
 			if (Array.isArray(recordValue) ||
 				  !Array.isArray(ruleValue)) {
 				return false;
 			}
-			return !(ruleValue.indexOf(recordValue) !== -1);
+			var value = String(recordValue).toLowerCase();
+			var list = ruleValue.map(function (e) {
+				return String(e).toLowerCase();
+			});
+			return !(list.indexOf(value) !== -1);
 		},
 	};
 
