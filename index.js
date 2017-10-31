@@ -1,20 +1,21 @@
 /**
  * znFilterMatcher
- * 
+ *
  * Ported code from the Zengine frontend
- * 
+ *
  * Determines whether the given record matches the given filter
  *
  * Limitations vs. API filtering:
  * - Does not support subfiltering across forms
  * - Does not support dynamic filter conditions ('logged-in-user')
- * 
- * 
+ *
+ *
  * Copyright (c) WizeHive - http://www.wizehive.com
- * 
+ *
  */
 var znFilterMatcher = (function() {
 
+	var BigNumber = require('bignumber.js');
 	var ruleFunctionMap = {
 		'': 'ruleEquals',
 		'not': 'ruleDoesNotEqual',
@@ -30,7 +31,7 @@ var znFilterMatcher = (function() {
 	 * Parse a numeric value from a record field input.
 	 * Strips '$' and ',' characters. If the value is not a valid number
 	 * after stripping characters, 0 is returned
-	 * 
+	 *
 	 * @param	input
 	 * @returns	{Number}
 	 * @author	Paul W. Smith <paul@wizehive.com>
@@ -111,32 +112,32 @@ var znFilterMatcher = (function() {
 			return (recordValue <= ruleValue);
 		},
 		ruleContains: function(recordValue, ruleValue) {
-			
+
 			if (Array.isArray(recordValue)) {
-				
+
 				// Normalize Value as Array
 				if (!Array.isArray(ruleValue)) {
 					ruleValue = [ruleValue];
 				}
-				
+
 				// Loop Array of Values
 				for (var index = 0; index < ruleValue.length; index++) {
-					
+
 					// Value Not Found in Record
 					if (recordValue.indexOf(ruleValue[index]) === -1) {
 						return false;
 					}
-					
+
 				}
-				
+
 				return true;
-				
+
 			}
 			else {
 				return String(recordValue).indexOf(String(ruleValue)) !== -1;
 			}
-			
-			
+
+
 		},
 		ruleDoesNotContain: function(recordValue, ruleValue) {
 			return !this.ruleContains(recordValue, ruleValue);
@@ -157,14 +158,15 @@ var znFilterMatcher = (function() {
 
 	/**
 	 * Determine whether the given record matches the given filter
-	 * 
+	 *
 	 * @param	{Object}	filter
 	 * @param	{Object}	record
 	 * @returns	{Boolean}
 	 * @author	Paul W. Smith <paul@wizehive.com>
 	 * @since	0.5.75
 	 */
-	function recordMatchesFilter(record, filter) {
+	function recordMatchesFilter(record, filter, options) {
+		options = typeof options !== 'undefined' ? options : {};
 		var currentOperator = Object.keys(filter)[0];
 		if (filter[currentOperator].length === 0) {
 			// Empty filter / no rules - considered a "match all"
@@ -172,7 +174,7 @@ var znFilterMatcher = (function() {
 		}
 
 		for (var i in filter[currentOperator]) {
-			var match = recordMatchesRule(record, filter[currentOperator][i]);
+			var match = recordMatchesRule(record, filter[currentOperator][i], options);
 			if (currentOperator == 'or' && match) {
 				return true;
 			}
@@ -187,23 +189,31 @@ var znFilterMatcher = (function() {
 
 	/**
 	 * Determine whether the given record matches the given filter rule
-	 * 
+	 *
 	 * @param	{Object}	filter rule
 	 * @param	{Object}	record
 	 * @returns	{Boolean}
 	 * @author	Paul W. Smith <paul@wizehive.com>
 	 * @since	0.5.75
 	 */
-	function recordMatchesRule(record, rule) {
+	function recordMatchesRule(record, rule, options) {
+		options = typeof options !== 'undefined' ? options : {};
 		var operators = ["and", "or"];
 
 		if (operators.indexOf(Object.keys(rule)[0]) !== -1) {
 			// Rule contains "and"/"or" key - nested filter
 			return recordMatchesFilter(record, rule);
 		}
-
 		if (rule.filter !== undefined) {
-			throw new Error("Subfilter matching is not supported");
+			if (options.subfiltering) {
+				var subRecord = record[rule.attribute];
+				if (!recordMatchesFilter(subRecord, rule.filter, options)) {
+					return false;
+				}
+				return true;
+			} else {
+				throw new Error("Subfilter matching is not supported");
+			}
 		}
 
 		if (typeof rule.value === 'string' && rule.value.split('|').indexOf('logged-in-user') !== -1) {
@@ -230,7 +240,7 @@ var znFilterMatcher = (function() {
 	 * Helper - parse rule values from filter rule
 	 * If rule contains piped values, splits them into an array; otherwise
 	 * yields an array-wrapped version of the single rule value for consistency
-	 * 
+	 *
 	 * @param	{Object}	filter rule
 	 * @returns	{Array}		set of parsed rule values
 	 * @author	Paul W. Smith <paul@wizehive.com>
@@ -248,7 +258,7 @@ var znFilterMatcher = (function() {
 
 	/**
 	 * Helper - get the needed record value for comparison against this rule
-	 * 
+	 *
 	 * @param	{Object}	record
 	 * @param	{Object}	filter rule
 	 * @returns	{String|Boolean}
@@ -280,7 +290,7 @@ var znFilterMatcher = (function() {
 	return {
 		recordMatchesFilter: recordMatchesFilter
 	};
-	
+
 }());
 
 module.exports = znFilterMatcher;

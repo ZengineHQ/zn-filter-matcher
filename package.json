@@ -1,6 +1,6 @@
 {
   "name": "zn-filter-matcher",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Zengine Filter Matcher",
   "main": "index.js",
   "scripts": {
@@ -20,5 +20,10 @@
   "bugs": {
     "url": "https://github.com/ZengineHQ/zn-filter-matcher/issues"
   },
-  "homepage": "https://github.com/ZengineHQ/zn-filter-matcher#readme"
+  "homepage": "https://github.com/ZengineHQ/zn-filter-matcher#readme",
+  "dependencies": {
+    "bignumber.js": "2.4.0"
+  },
+  "devDependencies": {}
+
 }
