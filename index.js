@@ -165,7 +165,6 @@ var znFilterMatcher = (function() {
 			var list = ruleValue.map(function (e) {
 				return String(e).toLowerCase();
 			});
-			console.log('list', list);
 			return (list.indexOf(value) !== -1);
 		},
 		ruleNotIn: function(recordValue, ruleValue) {
