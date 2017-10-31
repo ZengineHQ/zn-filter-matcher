@@ -4,7 +4,7 @@
   "description": "Zengine Filter Matcher",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "node ./tests/support/boot.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,7 @@
   "dependencies": {
     "bignumber.js": "2.4.0"
   },
-  "devDependencies": {}
-
+  "devDependencies": {
+    "jasmine": "^2.8.0"
+  }
 }
