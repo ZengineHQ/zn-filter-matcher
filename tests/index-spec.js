@@ -639,6 +639,156 @@ describe('znFilterMatcher', function() {
 		});
 
 		/**
+		 * @author	David McNelis <david.mcnelis@wizehive.com>
+		 * @since	1.1.0
+		 */
+		describe('ruleIn', function() {
+
+			var record,
+				filter;
+
+			beforeEach(function() {
+
+				record = {
+					field1: 'def'
+				};
+
+				filter = {
+					and: [
+						{
+							prefix: 'in',
+							attribute: 'field1',
+							value: ['abc','def','hij']
+						}
+					]
+				};
+
+			});
+
+			it('should return true', function() {
+
+				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(true);
+
+			});
+
+			it('should return false', function() {
+
+				record.field1 = 'xyz';
+
+				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
+
+			});
+
+			it('should return false with null value', function() {
+
+				record.field1 = null;
+
+				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
+
+			});
+
+			it('should return false when record value is array', function() {
+
+				record.field1 = ['xyz'];
+
+				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
+
+			});
+
+			it('should return false when filter value is not array', function() {
+
+				filter = {
+					and: [
+						{
+							prefix: 'in',
+							attribute: 'field1',
+							value: 'abc'
+						}
+					]
+				};
+
+				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
+
+			});
+
+		});
+
+		/**
+		 * @author	David McNelis <david.mcnelis@wizehive.com>
+		 * @since	1.1.0
+		 */
+		describe('ruleNotIn', function() {
+
+			var record,
+				filter;
+
+			beforeEach(function() {
+
+				record = {
+					field1: 'def'
+				};
+
+				filter = {
+					and: [
+						{
+							prefix: 'not-in',
+							attribute: 'field1',
+							value: ['abc','def','hij']
+						}
+					]
+				};
+
+			});
+
+			it('should return true', function() {
+
+				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
+
+			});
+
+			it('should return false', function() {
+
+				record.field1 = 'xyz';
+
+				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(true);
+
+			});
+
+			it('should return false with null value', function() {
+
+				record.field1 = null;
+
+				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(true);
+
+			});
+
+			it('should return false when record value is array', function() {
+
+				record.field1 = ['xyz'];
+
+				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
+
+			});
+
+			it('should return false when filter value is not array', function() {
+
+				filter = {
+					and: [
+						{
+							prefix: 'not-in',
+							attribute: 'field1',
+							value: 'abc'
+						}
+					]
+				};
+
+				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
+
+			});
+
+		});
+
+		/**
 		 * @author	Wes DeMoney <wes@wizehive.com>
 		 * @since	0.5.84
 		 */

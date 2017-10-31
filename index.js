@@ -24,7 +24,9 @@ var znFilterMatcher = (function() {
 		'contains': 'ruleContains',
 		'not-contains': 'ruleDoesNotContain',
 		'starts-with': 'ruleStartsWith',
-		'ends-with': 'ruleEndsWith'
+		'ends-with': 'ruleEndsWith',
+		'in': 'ruleIn',
+		'not-in': 'ruleNotIn'
 	};
 
 	/**
@@ -153,7 +155,29 @@ var znFilterMatcher = (function() {
 				return false;
 			}
 			return String(recordValue).endsWith(String(ruleValue));
-		}
+		},
+		ruleIn: function(recordValue, ruleValue) {
+			if (Array.isArray(recordValue) ||
+				  !Array.isArray(ruleValue)) {
+				return false;
+			}
+			var value = String(recordValue).toLowerCase();
+			var list = ruleValue.map(function (e) {
+				return String(e).toLowerCase();
+			});
+			return (list.indexOf(value) !== -1);
+		},
+		ruleNotIn: function(recordValue, ruleValue) {
+			if (Array.isArray(recordValue) ||
+				  !Array.isArray(ruleValue)) {
+				return false;
+			}
+			var value = String(recordValue).toLowerCase();
+			var list = ruleValue.map(function (e) {
+				return String(e).toLowerCase();
+			});
+			return !(list.indexOf(value) !== -1);
+		},
 	};
 
 	/**
