@@ -1,3 +1,6 @@
+var znFilterMatcher = require('../index.js');
+var matches = znFilterMatcher.recordMatchesFilter;
+
 /**
  * Unit tests for znFilterMatcher
  *
@@ -7,12 +10,6 @@
  * @since	0.5.84
  */
 describe('znFilterMatcher', function() {
-
-	var znFilterMatcher = require('../index.js');
-
-	beforeEach(function() {
-
-	});
 
 	/**
 	 * @author	Wes DeMoney <wes@wizehive.com>
@@ -638,155 +635,6 @@ describe('znFilterMatcher', function() {
 
 		});
 
-		/**
-		 * @author	David McNelis <david.mcnelis@wizehive.com>
-		 * @since	1.1.0
-		 */
-		describe('ruleIn', function() {
-
-			var record,
-				filter;
-
-			beforeEach(function() {
-
-				record = {
-					field1: 'def'
-				};
-
-				filter = {
-					and: [
-						{
-							prefix: 'in',
-							attribute: 'field1',
-							value: ['abc','def','hij']
-						}
-					]
-				};
-
-			});
-
-			it('should return true', function() {
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(true);
-
-			});
-
-			it('should return false', function() {
-
-				record.field1 = 'xyz';
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
-
-			});
-
-			it('should return false with null value', function() {
-
-				record.field1 = null;
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
-
-			});
-
-			it('should return false when record value is array', function() {
-
-				record.field1 = ['xyz'];
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
-
-			});
-
-			it('should return false when filter value is not array', function() {
-
-				filter = {
-					and: [
-						{
-							prefix: 'in',
-							attribute: 'field1',
-							value: 'abc'
-						}
-					]
-				};
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
-
-			});
-
-		});
-
-		/**
-		 * @author	David McNelis <david.mcnelis@wizehive.com>
-		 * @since	1.1.0
-		 */
-		describe('ruleNotIn', function() {
-
-			var record,
-				filter;
-
-			beforeEach(function() {
-
-				record = {
-					field1: 'def'
-				};
-
-				filter = {
-					and: [
-						{
-							prefix: 'not-in',
-							attribute: 'field1',
-							value: ['abc','def','hij']
-						}
-					]
-				};
-
-			});
-
-			it('should return true', function() {
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
-
-			});
-
-			it('should return false', function() {
-
-				record.field1 = 'xyz';
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(true);
-
-			});
-
-			it('should return false with null value', function() {
-
-				record.field1 = null;
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(true);
-
-			});
-
-			it('should return false when record value is array', function() {
-
-				record.field1 = ['xyz'];
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
-
-			});
-
-			it('should return false when filter value is not array', function() {
-
-				filter = {
-					and: [
-						{
-							prefix: 'not-in',
-							attribute: 'field1',
-							value: 'abc'
-						}
-					]
-				};
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
-
-			});
-
-		});
 
 		/**
 		 * @author	Wes DeMoney <wes@wizehive.com>
@@ -888,6 +736,80 @@ describe('znFilterMatcher', function() {
 		});
 	});
 
+});
 
+describe('in operator', function() {
 
+	it('single-value field (dropdown single, radio)', function() {
+		var filter = {
+			and: [
+				{
+					prefix: 'in',
+					attribute: 'field1',
+					value: ['abc','def','hij']
+				}
+			]
+		};
+		expect(matches({field1: 'abc'}, filter)).toBe(true);
+		expect(matches({field1: 'def'}, filter)).toBe(true);
+		expect(matches({field1: 'hij'}, filter)).toBe(true);
+		expect(matches({field1: 'xyz'}, filter)).toBe(false);
+		expect(matches({field1: null}, filter)).toBe(false);
+
+		// not a real world situation for a single-value field
+		expect(matches({field1: ['def']}, filter)).toBe(false);
+		expect(matches({field1: ['xyz']}, filter)).toBe(false);
+	});
+
+	it('single value is not valid as filter value', function() {
+		filter = {
+			and: [
+				{
+					prefix: 'in',
+					attribute: 'field1',
+					value: 'abc'
+				}
+			]
+		};
+		expect(matches({field1: 'abc'}, filter)).toBe(false);
+		expect(matches({field1: 'def'}, filter)).toBe(false);
+	});
+});
+
+describe('not-in operator', function() {
+
+	it('single-value field (dropdown single, radio)', function() {
+		filter = {
+			and: [
+				{
+					prefix: 'not-in',
+					attribute: 'field1',
+					value: ['abc','def','hij']
+				}
+			]
+		};
+		expect(matches({field1: 'abc'}, filter)).toBe(false);
+		expect(matches({field1: 'def'}, filter)).toBe(false);
+		expect(matches({field1: 'hij'}, filter)).toBe(false);
+		expect(matches({field1: 'xyz'}, filter)).toBe(true);
+		expect(matches({field1: null}, filter)).toBe(true);
+
+		// not a real world situation for a single-value field
+		expect(matches({field1: ['def']}, filter)).toBe(false);
+		expect(matches({field1: ['xyz']}, filter)).toBe(false);
+	});
+
+	it('single value is not valid as filter value', function() {
+		filter = {
+			and: [
+				{
+					prefix: 'not-in',
+					attribute: 'field1',
+					value: 'abc'
+				}
+			]
+		};
+		expect(matches({field1: 'abc'}, filter)).toBe(false);
+		expect(matches({field1: 'def'}, filter)).toBe(false);
+	});
 });
