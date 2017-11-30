@@ -740,7 +740,9 @@ describe('znFilterMatcher', function() {
 
 describe('in operator', function() {
 
-	it('single-value field (dropdown single, radio)', function() {
+	/* dropdown single, radio */
+
+	it('single-value field', function() {
 		var filter = {
 			and: [
 				{
@@ -756,6 +758,23 @@ describe('in operator', function() {
 		expect(matches({field1: 'xyz'}, filter)).toBe(false);
 		expect(matches({field1: null}, filter)).toBe(false);
 	});
+
+	it('single-value field IN empty array', function() {
+		var filter = {
+			and: [
+				{
+					prefix: 'in',
+					attribute: 'field1',
+					value: []
+				}
+			]
+		};
+		expect(matches({field1: 'abc'}, filter)).toBe(false);
+		expect(matches({field1: null}, filter)).toBe(false);
+		expect(matches({field1: undefined}, filter)).toBe(false);
+	});
+
+	/* dropdown multiple, checkbox */
 
 	it('multi-value field (dropdown multiple, checkbox)', function() {
 		var filter = {
@@ -792,6 +811,24 @@ describe('in operator', function() {
 		expect(match(['grapes', 'tomatoes'])).toBe(false);
 	});
 
+	it('multi-value field IN empty array', function() {
+		var filter = {
+			and: [
+				{
+					prefix: 'in',
+					attribute: 'field1',
+					value: []
+				}
+			]
+		};
+		var match = function(value) {
+			return matches({field1: value}, filter);
+		};
+		expect(match([])).toBe(false);
+		expect(match(['apples'])).toBe(false);
+		expect(match(null)).toBe(false);
+	});
+
 	it('single value is not valid as filter value', function() {
 		filter = {
 			and: [
@@ -809,7 +846,9 @@ describe('in operator', function() {
 
 describe('not-in operator', function() {
 
-	it('single-value field (dropdown single, radio)', function() {
+	/* dropdown single, radio */
+
+	it('single-value field', function() {
 		filter = {
 			and: [
 				{
@@ -826,7 +865,25 @@ describe('not-in operator', function() {
 		expect(matches({field1: null}, filter)).toBe(true);
 	});
 
-	it('multi-value field (dropdown multiple, checkbox)', function() {
+	it('single-value field NOT IN empty array', function() {
+		var filter = {
+			and: [
+				{
+					prefix: 'not-in',
+					attribute: 'field1',
+					value: []
+				}
+			]
+		};
+		expect(matches({field1: 'abc'}, filter)).toBe(true);
+		expect(matches({field1: ''}, filter)).toBe(true);
+		expect(matches({field1: null}, filter)).toBe(true);
+		expect(matches({field1: undefined}, filter)).toBe(true);
+	});
+
+	/* dropdown multiple, checkbox */
+
+	it('multi-value field', function() {
 		var filter = {
 			and: [
 				{
@@ -859,6 +916,24 @@ describe('not-in operator', function() {
 		expect(match([])).toBe(true);
 		expect(match(['grapes'])).toBe(true);
 		expect(match(['grapes', 'tomatoes'])).toBe(true);
+	});
+
+	it('multi-value field NOT IN empty array', function() {
+		var filter = {
+			and: [
+				{
+					prefix: 'not-in',
+					attribute: 'field1',
+					value: []
+				}
+			]
+		};
+		var match = function(value) {
+			return matches({field1: value}, filter);
+		};
+		expect(match([])).toBe(true);
+		expect(match(['apples'])).toBe(true);
+		expect(match(null)).toBe(true);
 	});
 
 	it('single value is not valid as filter value', function() {
