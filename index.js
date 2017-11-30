@@ -169,7 +169,11 @@ var znFilterMatcher = (function() {
 				}
 				return false;
 			} else {
-				return (ruleValue.indexOf(recordValue) !== -1);
+				var iRecordValue = String(recordValue).toLowerCase();
+				var iRuleValues = ruleValue.map(function(value) {
+					return String(value).toLowerCase();
+				});
+				return (iRuleValues.indexOf(iRecordValue) !== -1);
 			}
 		},
 		ruleNotIn: function(recordValue, ruleValue) {

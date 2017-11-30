@@ -748,14 +748,19 @@ describe('in operator', function() {
 				{
 					prefix: 'in',
 					attribute: 'field1',
-					value: ['abc','def','hij']
+					value: ['apples','bananas','OrAnGeS']
 				}
 			]
 		};
-		expect(matches({field1: 'abc'}, filter)).toBe(true);
-		expect(matches({field1: 'def'}, filter)).toBe(true);
-		expect(matches({field1: 'hij'}, filter)).toBe(true);
-		expect(matches({field1: 'xyz'}, filter)).toBe(false);
+
+		expect(matches({field1: 'apples'}, filter)).toBe(true);
+		expect(matches({field1: 'Apples'}, filter)).toBe(true);
+		expect(matches({field1: 'bananas'}, filter)).toBe(true);
+		expect(matches({field1: 'oranges'}, filter)).toBe(true);
+		expect(matches({field1: 'ORANGES'}, filter)).toBe(true);
+
+		expect(matches({field1: 'pineapples'}, filter)).toBe(false);
+		expect(matches({field1: 'potatoes'}, filter)).toBe(false);
 		expect(matches({field1: ''}, filter)).toBe(false);
 		expect(matches({field1: null}, filter)).toBe(false);
 		expect(matches({field1: undefined}, filter)).toBe(false);
@@ -785,7 +790,7 @@ describe('in operator', function() {
 				{
 					prefix: 'in',
 					attribute: 'field1',
-					value: ['apples','bananas']
+					value: ['apples','BaNaNaS']
 				}
 			]
 		};
@@ -795,7 +800,7 @@ describe('in operator', function() {
 
 		// one value in
 		expect(match(['apples'])).toBe(true);
-		expect(match(['bananas'])).toBe(true);
+		expect(match(['BANANAS'])).toBe(true);
 
 		// all values
 		expect(match(['apples','bananas'])).toBe(true);
