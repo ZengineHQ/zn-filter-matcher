@@ -756,7 +756,9 @@ describe('in operator', function() {
 		expect(matches({field1: 'def'}, filter)).toBe(true);
 		expect(matches({field1: 'hij'}, filter)).toBe(true);
 		expect(matches({field1: 'xyz'}, filter)).toBe(false);
+		expect(matches({field1: ''}, filter)).toBe(false);
 		expect(matches({field1: null}, filter)).toBe(false);
+		expect(matches({field1: undefined}, filter)).toBe(false);
 	});
 
 	it('single-value field IN empty array', function() {
@@ -770,6 +772,7 @@ describe('in operator', function() {
 			]
 		};
 		expect(matches({field1: 'abc'}, filter)).toBe(false);
+		expect(matches({field1: ''}, filter)).toBe(false);
 		expect(matches({field1: null}, filter)).toBe(false);
 		expect(matches({field1: undefined}, filter)).toBe(false);
 	});
@@ -805,8 +808,12 @@ describe('in operator', function() {
 		// all values + an unrelated value
 		expect(match(['tomatoes','bananas', 'apples'])).toBe(true);
 
-		expect(match(null)).toBe(false);
 		expect(match([])).toBe(false);
+		expect(match(null)).toBe(false);
+		expect(match(undefined)).toBe(false);
+
+		expect(match([null])).toBe(false);
+		expect(match([''])).toBe(false);
 		expect(match(['grapes'])).toBe(false);
 		expect(match(['grapes', 'tomatoes'])).toBe(false);
 	});
@@ -826,7 +833,9 @@ describe('in operator', function() {
 		};
 		expect(match([])).toBe(false);
 		expect(match(['apples'])).toBe(false);
+		expect(match('')).toBe(false);
 		expect(match(null)).toBe(false);
+		expect(match(undefined)).toBe(false);
 	});
 
 	it('single value is not valid as filter value', function() {
@@ -862,7 +871,9 @@ describe('not-in operator', function() {
 		expect(matches({field1: 'def'}, filter)).toBe(false);
 		expect(matches({field1: 'hij'}, filter)).toBe(false);
 		expect(matches({field1: 'xyz'}, filter)).toBe(true);
+		expect(matches({field1: ''}, filter)).toBe(true);
 		expect(matches({field1: null}, filter)).toBe(true);
+		expect(matches({field1: undefined}, filter)).toBe(true);
 	});
 
 	it('single-value field NOT IN empty array', function() {
