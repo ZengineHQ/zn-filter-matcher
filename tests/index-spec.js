@@ -755,10 +755,41 @@ describe('in operator', function() {
 		expect(matches({field1: 'hij'}, filter)).toBe(true);
 		expect(matches({field1: 'xyz'}, filter)).toBe(false);
 		expect(matches({field1: null}, filter)).toBe(false);
+	});
 
-		// not a real world situation for a single-value field
-		expect(matches({field1: ['def']}, filter)).toBe(false);
-		expect(matches({field1: ['xyz']}, filter)).toBe(false);
+	it('multi-value field (dropdown multiple, checkbox)', function() {
+		var filter = {
+			and: [
+				{
+					prefix: 'in',
+					attribute: 'field1',
+					value: ['apples','bananas']
+				}
+			]
+		};
+		var match = function(value) {
+			return matches({field1: value}, filter);
+		};
+
+		// one value in
+		expect(match(['apples'])).toBe(true);
+		expect(match(['bananas'])).toBe(true);
+
+		// all values
+		expect(match(['apples','bananas'])).toBe(true);
+		expect(match(['bananas','apples'])).toBe(true);
+
+		// one value in, other value out
+		expect(match(['apples', 'tomatoes'])).toBe(true);
+		expect(match(['tomatoes', 'apples'])).toBe(true);
+
+		// all values + an unrelated value
+		expect(match(['tomatoes','bananas', 'apples'])).toBe(true);
+
+		expect(match(null)).toBe(false);
+		expect(match([])).toBe(false);
+		expect(match(['grapes'])).toBe(false);
+		expect(match(['grapes', 'tomatoes'])).toBe(false);
 	});
 
 	it('single value is not valid as filter value', function() {
@@ -793,10 +824,41 @@ describe('not-in operator', function() {
 		expect(matches({field1: 'hij'}, filter)).toBe(false);
 		expect(matches({field1: 'xyz'}, filter)).toBe(true);
 		expect(matches({field1: null}, filter)).toBe(true);
+	});
 
-		// not a real world situation for a single-value field
-		expect(matches({field1: ['def']}, filter)).toBe(false);
-		expect(matches({field1: ['xyz']}, filter)).toBe(false);
+	it('multi-value field (dropdown multiple, checkbox)', function() {
+		var filter = {
+			and: [
+				{
+					prefix: 'not-in',
+					attribute: 'field1',
+					value: ['apples','bananas']
+				}
+			]
+		};
+		var match = function(value) {
+			return matches({field1: value}, filter);
+		};
+
+		// one value in
+		expect(match(['apples'])).toBe(false);
+		expect(match(['bananas'])).toBe(false);
+
+		// all values
+		expect(match(['apples','bananas'])).toBe(false);
+		expect(match(['bananas','apples'])).toBe(false);
+
+		// one value in, other value out
+		expect(match(['apples', 'tomatoes'])).toBe(false);
+		expect(match(['tomatoes', 'apples'])).toBe(false);
+
+		// all values + an unrelated value
+		expect(match(['tomatoes','bananas', 'apples'])).toBe(false);
+
+		expect(match(null)).toBe(true);
+		expect(match([])).toBe(true);
+		expect(match(['grapes'])).toBe(true);
+		expect(match(['grapes', 'tomatoes'])).toBe(true);
 	});
 
 	it('single value is not valid as filter value', function() {
