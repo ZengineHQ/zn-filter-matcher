@@ -16,6 +16,7 @@
 var znFilterMatcher = (function() {
 
 	var BigNumber = require('bignumber.js');
+	var isArray = Array.isArray;
 	var ruleFunctionMap = {
 		'': 'ruleEquals',
 		'not': 'ruleDoesNotEqual',
@@ -157,26 +158,29 @@ var znFilterMatcher = (function() {
 			return String(recordValue).endsWith(String(ruleValue));
 		},
 		ruleIn: function(recordValue, ruleValue) {
-			if (Array.isArray(recordValue) ||
-				  !Array.isArray(ruleValue)) {
+			if (!isArray(ruleValue)) {
 				return false;
 			}
-			var value = String(recordValue).toLowerCase();
-			var list = ruleValue.map(function (e) {
-				return String(e).toLowerCase();
-			});
-			return (list.indexOf(value) !== -1);
+			if (isArray(recordValue)) {
+				for (var i = 0; i < recordValue.length; i++) {
+					if (matchers.ruleIn(recordValue[i], ruleValue)) {
+						return true;
+					}
+				}
+				return false;
+			} else {
+				var iRecordValue = String(recordValue).toLowerCase();
+				var iRuleValues = ruleValue.map(function(value) {
+					return String(value).toLowerCase();
+				});
+				return (iRuleValues.indexOf(iRecordValue) !== -1);
+			}
 		},
 		ruleNotIn: function(recordValue, ruleValue) {
-			if (Array.isArray(recordValue) ||
-				  !Array.isArray(ruleValue)) {
+			if (!isArray(ruleValue)) {
 				return false;
 			}
-			var value = String(recordValue).toLowerCase();
-			var list = ruleValue.map(function (e) {
-				return String(e).toLowerCase();
-			});
-			return !(list.indexOf(value) !== -1);
+			return !matchers.ruleIn(recordValue, ruleValue);
 		},
 	};
 
