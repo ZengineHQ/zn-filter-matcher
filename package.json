@@ -1,6 +1,6 @@
 {
   "name": "zn-filter-matcher",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Zengine Filter Matcher",
   "main": "index.js",
   "scripts": {
