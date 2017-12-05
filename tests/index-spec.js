@@ -1,3 +1,6 @@
+var znFilterMatcher = require('../index.js');
+var matches = znFilterMatcher.recordMatchesFilter;
+
 /**
  * Unit tests for znFilterMatcher
  *
@@ -7,12 +10,6 @@
  * @since	0.5.84
  */
 describe('znFilterMatcher', function() {
-
-	var znFilterMatcher = require('../index.js');
-
-	beforeEach(function() {
-
-	});
 
 	/**
 	 * @author	Wes DeMoney <wes@wizehive.com>
@@ -638,155 +635,6 @@ describe('znFilterMatcher', function() {
 
 		});
 
-		/**
-		 * @author	David McNelis <david.mcnelis@wizehive.com>
-		 * @since	1.1.0
-		 */
-		describe('ruleIn', function() {
-
-			var record,
-				filter;
-
-			beforeEach(function() {
-
-				record = {
-					field1: 'def'
-				};
-
-				filter = {
-					and: [
-						{
-							prefix: 'in',
-							attribute: 'field1',
-							value: ['abc','def','hij']
-						}
-					]
-				};
-
-			});
-
-			it('should return true', function() {
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(true);
-
-			});
-
-			it('should return false', function() {
-
-				record.field1 = 'xyz';
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
-
-			});
-
-			it('should return false with null value', function() {
-
-				record.field1 = null;
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
-
-			});
-
-			it('should return false when record value is array', function() {
-
-				record.field1 = ['xyz'];
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
-
-			});
-
-			it('should return false when filter value is not array', function() {
-
-				filter = {
-					and: [
-						{
-							prefix: 'in',
-							attribute: 'field1',
-							value: 'abc'
-						}
-					]
-				};
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
-
-			});
-
-		});
-
-		/**
-		 * @author	David McNelis <david.mcnelis@wizehive.com>
-		 * @since	1.1.0
-		 */
-		describe('ruleNotIn', function() {
-
-			var record,
-				filter;
-
-			beforeEach(function() {
-
-				record = {
-					field1: 'def'
-				};
-
-				filter = {
-					and: [
-						{
-							prefix: 'not-in',
-							attribute: 'field1',
-							value: ['abc','def','hij']
-						}
-					]
-				};
-
-			});
-
-			it('should return true', function() {
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
-
-			});
-
-			it('should return false', function() {
-
-				record.field1 = 'xyz';
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(true);
-
-			});
-
-			it('should return false with null value', function() {
-
-				record.field1 = null;
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(true);
-
-			});
-
-			it('should return false when record value is array', function() {
-
-				record.field1 = ['xyz'];
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
-
-			});
-
-			it('should return false when filter value is not array', function() {
-
-				filter = {
-					and: [
-						{
-							prefix: 'not-in',
-							attribute: 'field1',
-							value: 'abc'
-						}
-					]
-				};
-
-				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
-
-			});
-
-		});
 
 		/**
 		 * @author	Wes DeMoney <wes@wizehive.com>
@@ -888,6 +736,233 @@ describe('znFilterMatcher', function() {
 		});
 	});
 
+});
 
+describe('in operator', function() {
 
+	/* dropdown single, radio */
+
+	it('single-value field', function() {
+		var filter = {
+			and: [
+				{
+					prefix: 'in',
+					attribute: 'field1',
+					value: ['apples','bananas','OrAnGeS']
+				}
+			]
+		};
+
+		expect(matches({field1: 'apples'}, filter)).toBe(true);
+		expect(matches({field1: 'Apples'}, filter)).toBe(true);
+		expect(matches({field1: 'bananas'}, filter)).toBe(true);
+		expect(matches({field1: 'oranges'}, filter)).toBe(true);
+		expect(matches({field1: 'ORANGES'}, filter)).toBe(true);
+
+		expect(matches({field1: 'pineapples'}, filter)).toBe(false);
+		expect(matches({field1: 'potatoes'}, filter)).toBe(false);
+		expect(matches({field1: ''}, filter)).toBe(false);
+		expect(matches({field1: null}, filter)).toBe(false);
+		expect(matches({field1: undefined}, filter)).toBe(false);
+	});
+
+	it('single-value field IN empty array', function() {
+		var filter = {
+			and: [
+				{
+					prefix: 'in',
+					attribute: 'field1',
+					value: []
+				}
+			]
+		};
+		expect(matches({field1: 'abc'}, filter)).toBe(false);
+		expect(matches({field1: ''}, filter)).toBe(false);
+		expect(matches({field1: null}, filter)).toBe(false);
+		expect(matches({field1: undefined}, filter)).toBe(false);
+	});
+
+	/* dropdown multiple, checkbox */
+
+	it('multi-value field (dropdown multiple, checkbox)', function() {
+		var filter = {
+			and: [
+				{
+					prefix: 'in',
+					attribute: 'field1',
+					value: ['apples','BaNaNaS']
+				}
+			]
+		};
+		var match = function(value) {
+			return matches({field1: value}, filter);
+		};
+
+		// one value in
+		expect(match(['apples'])).toBe(true);
+		expect(match(['BANANAS'])).toBe(true);
+
+		// all values
+		expect(match(['apples','bananas'])).toBe(true);
+		expect(match(['bananas','apples'])).toBe(true);
+
+		// one value in, other value out
+		expect(match(['apples', 'tomatoes'])).toBe(true);
+		expect(match(['tomatoes', 'apples'])).toBe(true);
+
+		// all values + an unrelated value
+		expect(match(['tomatoes','bananas', 'apples'])).toBe(true);
+
+		expect(match([])).toBe(false);
+		expect(match(null)).toBe(false);
+		expect(match(undefined)).toBe(false);
+
+		expect(match([null])).toBe(false);
+		expect(match([''])).toBe(false);
+		expect(match(['grapes'])).toBe(false);
+		expect(match(['grapes', 'tomatoes'])).toBe(false);
+	});
+
+	it('multi-value field IN empty array', function() {
+		var filter = {
+			and: [
+				{
+					prefix: 'in',
+					attribute: 'field1',
+					value: []
+				}
+			]
+		};
+		var match = function(value) {
+			return matches({field1: value}, filter);
+		};
+		expect(match([])).toBe(false);
+		expect(match(['apples'])).toBe(false);
+		expect(match('')).toBe(false);
+		expect(match(null)).toBe(false);
+		expect(match(undefined)).toBe(false);
+	});
+
+	it('single value is not valid as filter value', function() {
+		filter = {
+			and: [
+				{
+					prefix: 'in',
+					attribute: 'field1',
+					value: 'abc'
+				}
+			]
+		};
+		expect(matches({field1: 'abc'}, filter)).toBe(false);
+		expect(matches({field1: 'def'}, filter)).toBe(false);
+	});
+});
+
+describe('not-in operator', function() {
+
+	/* dropdown single, radio */
+
+	it('single-value field', function() {
+		filter = {
+			and: [
+				{
+					prefix: 'not-in',
+					attribute: 'field1',
+					value: ['abc','def','hij']
+				}
+			]
+		};
+		expect(matches({field1: 'abc'}, filter)).toBe(false);
+		expect(matches({field1: 'def'}, filter)).toBe(false);
+		expect(matches({field1: 'hij'}, filter)).toBe(false);
+		expect(matches({field1: 'xyz'}, filter)).toBe(true);
+		expect(matches({field1: ''}, filter)).toBe(true);
+		expect(matches({field1: null}, filter)).toBe(true);
+		expect(matches({field1: undefined}, filter)).toBe(true);
+	});
+
+	it('single-value field NOT IN empty array', function() {
+		var filter = {
+			and: [
+				{
+					prefix: 'not-in',
+					attribute: 'field1',
+					value: []
+				}
+			]
+		};
+		expect(matches({field1: 'abc'}, filter)).toBe(true);
+		expect(matches({field1: ''}, filter)).toBe(true);
+		expect(matches({field1: null}, filter)).toBe(true);
+		expect(matches({field1: undefined}, filter)).toBe(true);
+	});
+
+	/* dropdown multiple, checkbox */
+
+	it('multi-value field', function() {
+		var filter = {
+			and: [
+				{
+					prefix: 'not-in',
+					attribute: 'field1',
+					value: ['apples','bananas']
+				}
+			]
+		};
+		var match = function(value) {
+			return matches({field1: value}, filter);
+		};
+
+		// one value in
+		expect(match(['apples'])).toBe(false);
+		expect(match(['bananas'])).toBe(false);
+
+		// all values
+		expect(match(['apples','bananas'])).toBe(false);
+		expect(match(['bananas','apples'])).toBe(false);
+
+		// one value in, other value out
+		expect(match(['apples', 'tomatoes'])).toBe(false);
+		expect(match(['tomatoes', 'apples'])).toBe(false);
+
+		// all values + an unrelated value
+		expect(match(['tomatoes','bananas', 'apples'])).toBe(false);
+
+		expect(match(null)).toBe(true);
+		expect(match([])).toBe(true);
+		expect(match(['grapes'])).toBe(true);
+		expect(match(['grapes', 'tomatoes'])).toBe(true);
+	});
+
+	it('multi-value field NOT IN empty array', function() {
+		var filter = {
+			and: [
+				{
+					prefix: 'not-in',
+					attribute: 'field1',
+					value: []
+				}
+			]
+		};
+		var match = function(value) {
+			return matches({field1: value}, filter);
+		};
+		expect(match([])).toBe(true);
+		expect(match(['apples'])).toBe(true);
+		expect(match(null)).toBe(true);
+	});
+
+	it('single value is not valid as filter value', function() {
+		filter = {
+			and: [
+				{
+					prefix: 'not-in',
+					attribute: 'field1',
+					value: 'abc'
+				}
+			]
+		};
+		expect(matches({field1: 'abc'}, filter)).toBe(false);
+		expect(matches({field1: 'def'}, filter)).toBe(false);
+	});
 });
