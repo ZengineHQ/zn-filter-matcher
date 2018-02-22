@@ -651,7 +651,8 @@ describe('znFilterMatcher', function() {
 				record = {
 					field6: {
 						field11: 'abcdef'
-					}
+					},
+					field7: 'bananas'
 				};
 
 				filter = {
@@ -681,6 +682,40 @@ describe('znFilterMatcher', function() {
 			it('should return true', function() {
 
 				expect(znFilterMatcher.recordMatchesFilter(record, filter, options)).toBe(true);
+
+			});
+
+
+			it('should return true with nested filter', function() {
+
+				var nestedFilter =  {
+					or: [
+						{
+							and: [
+								{
+									prefix: '',
+									attribute: 'field6',
+									filter: {
+										and: [
+											{
+												prefix: '',
+												attribute: 'field11',
+												value: 'abcdef'
+											}
+										]
+									}
+								},
+								{
+									prefix: '',
+									attribute: 'field7',
+									value: 'bananas'
+								}
+							]
+						}
+					]
+				};
+
+				expect(znFilterMatcher.recordMatchesFilter(record, nestedFilter, options)).toBe(true);
 
 			});
 
