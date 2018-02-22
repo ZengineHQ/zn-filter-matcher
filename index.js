@@ -230,7 +230,7 @@ var znFilterMatcher = (function() {
 
 		if (operators.indexOf(Object.keys(rule)[0]) !== -1) {
 			// Rule contains "and"/"or" key - nested filter
-			return recordMatchesFilter(record, rule);
+			return recordMatchesFilter(record, rule, options);
 		}
 		if (rule.filter !== undefined) {
 			if (options.subfiltering) {
