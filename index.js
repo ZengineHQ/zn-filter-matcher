@@ -308,7 +308,9 @@ var znFilterMatcher = (function() {
 			} else if (recordValue.id !== undefined) {
 				recordValue = recordValue.id;
 			}
-		} else if (recordValue === null || recordValue === undefined) {
+		}
+
+		if (recordValue === null || recordValue === undefined) {
 			return '';
 		}
 
