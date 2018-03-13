@@ -66,6 +66,27 @@ describe('znFilterMatcher', function() {
 
 			});
 
+			it('should return true with null object', function() {
+
+				record.field1 = {
+					id: null,
+					name: null
+				};
+
+				filter = {
+					and: [
+						{
+							prefix: '',
+							attribute: 'field1',
+							value: null
+						}
+					]
+				};
+
+				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(true);
+
+			});
+
 		});
 
 		/**
@@ -114,6 +135,27 @@ describe('znFilterMatcher', function() {
 				record.field1 = null;
 
 				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(true);
+
+			});
+
+			it('should return true with null object', function() {
+
+				record.field1 = {
+					id: null,
+					name: null
+				};
+
+				filter = {
+					and: [
+						{
+							prefix: 'not',
+							attribute: 'field1',
+							value: 'null'
+						}
+					]
+				};
+
+				expect(znFilterMatcher.recordMatchesFilter(record, filter)).toBe(false);
 
 			});
 
